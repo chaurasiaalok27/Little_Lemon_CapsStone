@@ -1,9 +1,14 @@
 import SwiftUI
+import CoreData
 
 struct Menu: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \RestItem.name, ascending: true)], animation: .default)
-    private var dishes: FetchedResults<RestItem>
+//    @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \RestItem.name, ascending: true)], animation: .default)
+//    private var dishes: FetchedResults<RestItem>
+    
+    @ObservedObject var dishesModel = DishesModel()
+    
+    @State var searchText = ""
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -20,32 +25,56 @@ struct Menu: View {
             }
             .padding([.horizontal, .top]) // only pad the header
 
-            List {
-                ForEach(dishes) { item in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(item.name ?? "Unknown Dish")
-                                .font(.headline)
-                            Text(item.itemDescription ?? "Unknown Description")
-                                .font(.system(size: 8))
-                            Text("$\(item.price, specifier: "%.2f")")
+            NavigationView {
+                
+                FetchedObjects(
+                    predicate:buildPredicate(),
+                    sortDescriptors: buildSortDescriptors()) {
+                        (dishes: [RestItem]) in
+                        List {
+                            ForEach(dishes,id:\.self) { item in
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(item.name ?? "Unknown Dish")
+                                            .font(.headline)
+                                        Text(item.itemDescription ?? "Unknown Description")
+                                            .font(.system(size: 8))
+                                        Text(item.price ?? "0")
+                                    }
+                                    Spacer()
+                                    Image("dishImage")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 100, height: 100)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                                .padding(.vertical, 8) // Optional: tighter row spacing
+                            }
                         }
-                        Spacer()
-                        Image("dishImage")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 100, height: 100)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .listStyle(PlainListStyle()) // remove extra insets from List
+                        .searchable(text: $searchText,
+                                    prompt: "search...")
                     }
-                    .padding(.vertical, 8) // Optional: tighter row spacing
-                }
-            }
-            .listStyle(PlainListStyle()) // remove extra insets from List
-        }
-        .onAppear {
-            if dishes.isEmpty {
-                DishesModel.shared.reload(viewContext)
             }
         }
+        .task {
+          await  dishesModel.reload(viewContext)
+        }
+        
+    }
+    
+    func buildPredicate() -> NSPredicate {
+        if searchText == ""
+        {
+            return NSPredicate(value: true)
+        }
+        else{
+            return NSPredicate(format: "name CONTAINS[cd] %@", searchText)
+        }
+ 
+    }
+    
+    func buildSortDescriptors() -> [NSSortDescriptor] {
+        return [NSSortDescriptor(keyPath: \RestItem.name, ascending: true)]
     }
 }

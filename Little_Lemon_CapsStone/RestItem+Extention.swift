@@ -13,15 +13,16 @@ extension RestItem {
     static func createDishesFrom(menuItems: [MenuItem], _ context: NSManagedObjectContext) {
         for menuItem in menuItems {
 //             Skip creation if the dish already exists
-            if dishExists(name: menuItem.name, context: context) {
+            if dishExists(name: menuItem.title, context: context) {
                 continue
             }
 
             let oneDish = RestItem(context: context)
-            oneDish.name = menuItem.name
+            oneDish.name = menuItem.title
             oneDish.price = menuItem.price
             oneDish.itemDescription = menuItem.description
             oneDish.image = menuItem.image
+            oneDish.category = menuItem.category
         }
 
         do {
