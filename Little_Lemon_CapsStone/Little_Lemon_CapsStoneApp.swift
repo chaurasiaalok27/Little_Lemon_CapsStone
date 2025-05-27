@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct Little_Lemon_CapsStoneApp: App {
     let persistenceController = PersistenceController.shared
+    @State var isLoggedIn: Bool = UserDefaults.standard.bool(forKey: "isLoggedIn")
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            OnBoarding()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            
         }
     }
 }

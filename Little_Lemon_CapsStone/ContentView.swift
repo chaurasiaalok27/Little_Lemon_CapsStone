@@ -10,76 +10,58 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
-
+    @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \RestItem.name, ascending: true)],animation: .default)
+    
+    
+    private var dishes: FetchedResults<RestItem>
     var body: some View {
         NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+            VStack{
+               
+                List{
+                    ForEach(dishes) { item in
+                        HStack(){
+                            VStack(alignment: .leading,spacing: 4) {
+                                Text(item.name ?? "Unknown Dish") // Safely unwrap
+                                    .font(.headline)
+                                Text(
+                                    item.itemDescription ?? "Unknown Size"
+                                ).font(.system(size: 8))
+                                Text("$\(item.price, specifier: "%.2f")")
+                            }
+                            Spacer()
+                            Image("dishImage")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(
+                                    width: 100,
+                                    height: 100,
+                                    alignment: .center
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .padding(.all,8)
+                            
+                        }
                     }
                 }
-                .onDelete(perform: deleteItems)
+                
+                
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-            
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }.onAppear {
+            if dishes.isEmpty {
+                DishesModel.shared.reload(viewContext)
             }
         }
     }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
+    
+    func createMenu() {
+        let dessert = RestItem(context: viewContext)
+        dessert.name = "Profiterole"
+        dessert.itemDescription = "Large"
+        dessert.price = 2.99
+        
     }
 }
-
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
 
 #Preview {
     ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
