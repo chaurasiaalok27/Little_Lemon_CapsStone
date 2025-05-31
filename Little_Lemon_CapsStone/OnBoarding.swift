@@ -4,10 +4,11 @@ struct OnBoarding: View {
     @State var firstName = ""
     @State var lastName = ""
     @State var email = ""
+    @State var phoneNumber = ""
     @State var showFormInvalidMessage = false
     @State var errorMessage = ""
     @State var isLoggedIn: Bool = UserDefaults.standard.bool(forKey: "isLoggedIn")
-
+    
     
     var body: some View {
         NavigationView {
@@ -19,23 +20,96 @@ struct OnBoarding: View {
                 }
                                .hidden() // make it invisible but layout-safe
                 
+                ZStack{
+                    HStack( spacing: 10){
+                        Spacer()
+                        Image("littleLemonLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 160, height: 40)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .padding(.leading)
+                        Spacer()
+                    }
+                    HStack( spacing: 10){
+                        Spacer()
+                        Image("profile-image-placeholder")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    }
+                }.padding(.horizontal)
+                    .frame(height: 60)
+                
+                
+                HStack{
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Little Lemon")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color(hex:"F4CE14"))
+                        
+                        Text("Chicago")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                        
+                        
+                        Text("We serve delicious Mediterranean food made with the freshest ingredients.").foregroundColor(.white)
+                    }
+                    
+                    Image("topDish")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 140, height: 160)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    
+                }
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(hex: "#495E57"))
+                
                 Form {
                     Group {
-                        HStack {
-                            Text("First Name:")
+                        // First name
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("First name")
                                 .font(.subheadline)
-                            TextField("Your name...", text: $firstName)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.gray)
+                            TextField("", text: $firstName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                         }
-                        HStack {
-                            Text("Last Name:")
+                        // Last name
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Last name")
                                 .font(.subheadline)
-                            TextField("Your name...", text: $lastName)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.gray)
+                            TextField("", text: $lastName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                         }
-                        HStack {
-                            Text("Email:")
+                        
+                        // Email
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Email")
                                 .font(.subheadline)
-                            TextField("Your email...", text: $email)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.gray)
+                            TextField("", text: $email)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .keyboardType(.emailAddress)
+                        }
+                        
+                        // Phone Number
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Phone number")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.gray)
+                            TextField("", text: $phoneNumber)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .keyboardType(.phonePad)
                         }
                     }
                     
@@ -62,7 +136,7 @@ struct OnBoarding: View {
                     Text(self.errorMessage)
                 })
             }
-           
+            
         } .onAppear {
             if UserDefaults.standard.bool(forKey: "isLoggedIn") {
                 isLoggedIn = true
@@ -73,7 +147,7 @@ struct OnBoarding: View {
     }
     
     private func validateForm() {
-        if email.isEmpty || firstName.isEmpty || lastName.isEmpty {
+        if email.isEmpty || firstName.isEmpty || lastName.isEmpty || phoneNumber.isEmpty {
             showFormInvalidMessage = true
             errorMessage = "All fields are required"
             return
@@ -83,6 +157,7 @@ struct OnBoarding: View {
         UserDefaults.standard.set(firstName, forKey: "firstName")
         UserDefaults.standard.set(lastName, forKey: "lastName")
         UserDefaults.standard.set(email, forKey: "email")
+        UserDefaults.standard.set(phoneNumber, forKey: "phoneNumber")
         UserDefaults.standard.set(true, forKey: "isLoggedIn")
         showFormInvalidMessage = false
         isLoggedIn = true
