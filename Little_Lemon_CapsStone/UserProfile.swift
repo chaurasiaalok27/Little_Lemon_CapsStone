@@ -107,11 +107,24 @@ struct UserProfile: View {
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.gray)
+                 
+                    HStack {
+                        CheckBoxView(checked: $orderStatuses)
+                        Text("Order statuses")
+                    }
+                    HStack {
+                        CheckBoxView(checked: $passwordChanges)
+                        Text("Password changes")
+                    }
+                    HStack {
+                        CheckBoxView(checked: $specialOffers)
+                        Text("Special offers")
+                    }
+                    HStack {
+                        CheckBoxView(checked: $newsletter)
+                        Text("Newsletter")
+                    }
                     
-                    Toggle("Order statuses", isOn: $orderStatuses)
-                    Toggle("Password changes", isOn: $passwordChanges)
-                    Toggle("Special offers", isOn: $specialOffers)
-                    Toggle("Newsletter", isOn: $newsletter)
                 }
                 Spacer()
                 
