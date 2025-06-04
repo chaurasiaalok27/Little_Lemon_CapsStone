@@ -197,17 +197,23 @@ struct Menu: View {
     
     
     func buildPredicate() -> NSCompoundPredicate {
-        let search = searchText == "" ? NSPredicate(value: true) : NSPredicate(format: "title CONTAINS[cd] %@", searchText)
-        let category = selectedCategory == "" ? NSPredicate(
-            value: true
-        ) : NSPredicate(
-            format: "category CONTAINS[cd] %@",
-            selectedCategory
-        )
+        let trimmedSearch = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        
-        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [search,category ])
-        return compoundPredicate
+        let searchPredicate: NSPredicate
+        if !trimmedSearch.isEmpty {
+            searchPredicate = NSPredicate(format: "name CONTAINS[cd] %@", trimmedSearch)
+        } else {
+            searchPredicate = NSPredicate(value: true)
+        }
+
+        let categoryPredicate: NSPredicate
+        if !selectedCategory.isEmpty {
+            categoryPredicate = NSPredicate(format: "category CONTAINS[cd] %@", selectedCategory)
+        } else {
+            categoryPredicate = NSPredicate(value: true)
+        }
+
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [searchPredicate, categoryPredicate])
     }
     
     func buildSortDescriptors() -> [NSSortDescriptor] {
